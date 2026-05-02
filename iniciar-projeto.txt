@@ -1,0 +1,50 @@
+PULSER — GUIA DE USO
+====================
+
+
+1. BANCO DE DADOS (sempre primeiro)
+------------------------------------
+Terminal 1 — dentro de pulser-api/:
+
+  npx prisma dev
+
+Deixe rodando. Anote os IPs que aparecem (porta 51214 e 51215).
+
+
+2. API
+------
+Terminal 2 — dentro de pulser-api/:
+
+  npm run dev
+
+A API sobe em http://0.0.0.0:3000
+Deixe rodando enquanto usar o app.
+
+
+3. IMPORTAR MÚSICAS (só quando quiser adicionar arquivos novos)
+--------------------------------------------------------------
+Terminal 3 — dentro de pulser-api/:
+
+  npm run import
+
+Requer a API e o banco rodando.
+Lê a pasta definida em MUSIC_PATH no .env e importa tudo automaticamente.
+Progresso aparece no terminal. Pode rodar quantas vezes quiser — não duplica.
+
+
+4. APP MOBILE
+-------------
+Terminal 3 (ou 4) — dentro de pulser-mobile/:
+
+  npx expo start
+
+Abra o Expo Go no iPhone, escaneie o QR code.
+iPhone e PC precisam estar na mesma rede WiFi.
+
+
+ORDEM CORRETA
+-------------
+1. npx prisma dev        (pulser-api)
+2. npm run dev           (pulser-api)
+3. npx expo start        (pulser-mobile)
+4. npm run import        (pulser-api) — opcional, só para adicionar músicas
