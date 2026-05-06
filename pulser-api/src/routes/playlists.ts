@@ -1,3 +1,4 @@
+//playlist.ts
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../db.js'
 
@@ -10,6 +11,16 @@ export const playlistsRoutes: FastifyPluginAsync = async (app) => {
     return prisma.playlist.create({ data: { name: request.body.name } })
   })
 
+  app.patch<{ Params: { id: string }; Body: { name: string } }>(
+    '/playlists/:id',
+    async (request) => {
+      return prisma.playlist.update({
+        where: { id: request.params.id },
+        data: { name: request.body.name },
+      })
+    }
+  )
+
   app.get<{ Params: { id: string } }>('/playlists/:id', async (request) => {
     return prisma.playlist.findUniqueOrThrow({
       where: { id: request.params.id },
@@ -17,7 +28,12 @@ export const playlistsRoutes: FastifyPluginAsync = async (app) => {
         tracks: {
           orderBy: { position: 'asc' },
           include: {
-            track: { include: { album: { include: { artist: true } } } },
+            track: {
+              include: {
+                album: { include: { artist: true } },
+                featArtists: { include: { artist: true } },
+              },
+            },
           },
         },
       },
@@ -36,6 +52,20 @@ export const playlistsRoutes: FastifyPluginAsync = async (app) => {
           playlistId: request.params.id,
           trackId: request.body.trackId,
           position: (last?.position ?? 0) + 1,
+        },
+      })
+    }
+  )
+
+  app.delete<{ Params: { id: string; trackId: string } }>(
+    '/playlists/:id/tracks/:trackId',
+    async (request) => {
+      return prisma.playlistTrack.delete({
+        where: {
+          playlistId_trackId: {
+            playlistId: request.params.id,
+            trackId: request.params.trackId,
+          },
         },
       })
     }

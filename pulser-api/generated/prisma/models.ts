@@ -10,7 +10,9 @@
  */
 export type * from './models/Artist.js'
 export type * from './models/Album.js'
+export type * from './models/AlbumArtist.js'
 export type * from './models/Track.js'
+export type * from './models/TrackArtist.js'
 export type * from './models/Playlist.js'
 export type * from './models/PlaylistTrack.js'
 export type * from './commonInputTypes.js'

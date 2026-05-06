@@ -52,10 +52,20 @@ export type Artist = Prisma.ArtistModel
  */
 export type Album = Prisma.AlbumModel
 /**
+ * Model AlbumArtist
+ * 
+ */
+export type AlbumArtist = Prisma.AlbumArtistModel
+/**
  * Model Track
  * 
  */
 export type Track = Prisma.TrackModel
+/**
+ * Model TrackArtist
+ * 
+ */
+export type TrackArtist = Prisma.TrackArtistModel
 /**
  * Model Playlist
  * 

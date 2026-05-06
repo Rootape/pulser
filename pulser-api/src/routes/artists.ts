@@ -1,3 +1,4 @@
+//artists.ts
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../db.js'
 
@@ -18,6 +19,16 @@ export const artistsRoutes: FastifyPluginAsync = async (app) => {
           include: { _count: { select: { tracks: true } } },
         },
       },
+    })
+  })
+
+  app.patch<{
+    Params: { id: string }
+    Body: { name?: string; bio?: string; imageUrl?: string }
+  }>('/artists/:id', async (request) => {
+    return prisma.artist.update({
+      where: { id: request.params.id },
+      data: request.body,
     })
   })
 }

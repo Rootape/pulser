@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,23 +8,35 @@ datasource db {
 }
 
 model Artist {
-  id       String  @id @default(cuid())
-  name     String  @unique
-  bio      String?
-  imageUrl String?
-  albums   Album[]
+  id               String        @id @default(cuid())
+  name             String        @unique
+  bio              String?
+  imageUrl         String?
+  albums           Album[]
+  additionalAlbums AlbumArtist[]
+  trackFeats       TrackArtist[]
 }
 
 model Album {
-  id       String  @id @default(cuid())
-  title    String
-  year     Int?
-  coverUrl String?
-  artistId String
-  artist   Artist  @relation(fields: [artistId], references: [id])
-  tracks   Track[]
+  id                String        @id @default(cuid())
+  title             String
+  year              Int?
+  coverUrl          String?
+  artistId          String
+  artist            Artist        @relation(fields: [artistId], references: [id])
+  additionalArtists AlbumArtist[]
+  tracks            Track[]
 
   @@unique([title, artistId])
+}
+
+model AlbumArtist {
+  albumId  String
+  artistId String
+  album    Album  @relation(fields: [albumId], references: [id])
+  artist   Artist @relation(fields: [artistId], references: [id])
+
+  @@id([albumId, artistId])
 }
 
 model Track {
@@ -40,7 +47,17 @@ model Track {
   trackNumber Int?
   albumId     String
   album       Album           @relation(fields: [albumId], references: [id])
+  featArtists TrackArtist[]
   playlists   PlaylistTrack[]
+}
+
+model TrackArtist {
+  trackId  String
+  artistId String
+  track    Track  @relation(fields: [trackId], references: [id])
+  artist   Artist @relation(fields: [artistId], references: [id])
+
+  @@id([trackId, artistId])
 }
 
 model Playlist {

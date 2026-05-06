@@ -1,3 +1,4 @@
+//search.ts
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../db.js'
 
@@ -12,9 +13,24 @@ export const searchRoutes: FastifyPluginAsync = async (app) => {
           { title: { contains: q, mode: 'insensitive' } },
           { album: { title: { contains: q, mode: 'insensitive' } } },
           { album: { artist: { name: { contains: q, mode: 'insensitive' } } } },
+          {
+            album: {
+              additionalArtists: {
+                some: { artist: { name: { contains: q, mode: 'insensitive' } } },
+              },
+            },
+          },
+          {
+            featArtists: {
+              some: { artist: { name: { contains: q, mode: 'insensitive' } } },
+            },
+          },
         ],
       },
-      include: { album: { include: { artist: true } } },
+      include: {
+        album: { include: { artist: true } },
+        featArtists: { include: { artist: true } },
+      },
       take: 50,
     })
   })
