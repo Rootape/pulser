@@ -1,5 +1,5 @@
 // Troque pelo IP do seu PC na rede local (ex: 192.168.1.100)
-export const API_BASE = 'http://192.168.15.13:3000'
+export const API_BASE = 'http://192.168.15.8:3000'
 
 export type Artist = {
   id: string

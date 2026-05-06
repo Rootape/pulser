@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { colors, fonts, formatDuration, spacing } from '../lib/theme'
 import { usePlayer } from '../lib/player'
 import type { PlayerTrack } from '../lib/player'
+import { MiniBars } from './MiniBars'
 
 type Props = {
   track: PlayerTrack
@@ -27,9 +28,13 @@ export function TrackRow({ track, index, queue, showNumber = true, onLongPress }
       delayLongPress={400}
     >
       {showNumber && (
-        <Text style={[s.num, isActive && s.numActive]}>
-          {isActive && isPlaying ? '▶' : String(index + 1)}
-        </Text>
+        isActive && isPlaying ? (
+          <View style={s.numWrap}>
+            <MiniBars active />
+          </View>
+        ) : (
+          <Text style={[s.num, isActive && s.numActive]}>{String(index + 1)}</Text>
+        )
       )}
       <View style={s.meta}>
         <Text style={[s.title, isActive && s.titleActive]} numberOfLines={1}>
@@ -53,7 +58,12 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.hairline,
   },
-  rowActive: { backgroundColor: colors.surface },
+  rowActive: {
+    backgroundColor: colors.surface,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.primary,
+  },
+  numWrap: { width: 24, alignItems: 'center', justifyContent: 'center' },
   num: { width: 24, textAlign: 'right', fontFamily: fonts.mono, fontSize: 11, color: colors.inkMute },
   numActive: { color: colors.primary },
   meta: { flex: 1 },

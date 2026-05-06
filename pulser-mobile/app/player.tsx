@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Dimensions, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -7,6 +7,12 @@ import { usePlayer } from '../lib/player'
 import { coverUri } from '../lib/api'
 import { colors, fonts, formatDuration, spacing } from '../lib/theme'
 import { Icon } from '../components/Icon'
+import { PulseBorder } from '../components/PulseBorder'
+import { Waveform } from '../components/Waveform'
+import { GridBackground } from '../components/GridBackground'
+
+const BPM = 128
+const BEAT_MS = 60_000 / BPM
 
 const COVER_SIZE = Math.min(Dimensions.get('window').width - spacing.md * 2, 320)
 
@@ -18,6 +24,24 @@ export default function PlayerScreen() {
   const [barWidth, setBarWidth] = useState(0)
   const [scrubbing, setScrubbing] = useState(false)
   const [scrubPos, setScrubPos] = useState(0)
+  const beat = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (!isPlaying) {
+      Animated.timing(beat, { toValue: 0, duration: 200, useNativeDriver: false }).start()
+      return
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(beat, { toValue: 1, duration: BEAT_MS / 2, useNativeDriver: false }),
+        Animated.timing(beat, { toValue: 0, duration: BEAT_MS / 2, useNativeDriver: false }),
+      ]),
+    )
+    loop.start()
+    return () => loop.stop()
+  }, [isPlaying, beat])
+
+  const playScale = beat.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] })
 
   if (!track) {
     router.back()
@@ -30,6 +54,7 @@ export default function PlayerScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <GridBackground />
       <View style={s.topBar}>
         <Pressable onPress={() => router.back()} hitSlop={16}>
           <Text style={s.close}>✕ fechar</Text>
@@ -40,11 +65,13 @@ export default function PlayerScreen() {
       </View>
 
       <View style={s.coverWrap}>
-        {uri ? (
-          <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={uri} />
-        ) : (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surface2 }]} />
-        )}
+        <PulseBorder size={COVER_SIZE} active={isPlaying} haloPadding={22} borderWidth={2}>
+          {uri ? (
+            <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={uri} />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surface2 }]} />
+          )}
+        </PulseBorder>
       </View>
 
       <View style={s.info}>
@@ -74,12 +101,7 @@ export default function PlayerScreen() {
             setScrubbing(false)
           }}
         >
-          <View style={s.progressTrack}>
-            <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
-          </View>
-          {barWidth > 0 && (
-            <View style={[s.progressDot, { left: progress * barWidth - 6 }]} />
-          )}
+          <Waveform position={displayPos} duration={duration} scrubbing={scrubbing} />
         </View>
         <View style={s.timestamps}>
           <Text style={s.time}>{formatDuration(displayPos)}</Text>
@@ -94,9 +116,11 @@ export default function PlayerScreen() {
         <Pressable onPress={prev} hitSlop={16}>
           <Icon name="skip-back" size={32} color={colors.ink} />
         </Pressable>
-        <Pressable style={s.playBtn} onPress={isPlaying ? pause : resume}>
-          <Icon name={isPlaying ? 'pause' : 'play'} size={28} color={colors.bg} />
-        </Pressable>
+        <Animated.View style={{ transform: [{ scale: playScale }] }}>
+          <Pressable style={s.playBtn} onPress={isPlaying ? pause : resume}>
+            <Icon name={isPlaying ? 'pause' : 'play'} size={28} color={colors.bg} />
+          </Pressable>
+        </Animated.View>
         <Pressable onPress={next} hitSlop={16}>
           <Icon name="skip-forward" size={32} color={colors.ink} />
         </Pressable>
@@ -125,11 +149,7 @@ const s = StyleSheet.create({
   monoBtnText: { fontFamily: fonts.mono, fontSize: 10, color: colors.inkMute, letterSpacing: 1 },
   monoBtnTextActive: { color: colors.cyan },
   coverWrap: {
-    width: COVER_SIZE,
-    height: COVER_SIZE,
     alignSelf: 'center',
-    backgroundColor: colors.surface2,
-    overflow: 'hidden',
     marginBottom: spacing.md,
   },
   info: { gap: spacing.xs, marginBottom: spacing.lg },
@@ -137,15 +157,7 @@ const s = StyleSheet.create({
   artist: { fontFamily: fonts.mono, fontSize: 12, color: colors.primary, letterSpacing: 1 },
   album: { fontFamily: fonts.mono, fontSize: 11, color: colors.inkMute },
   progressContainer: { marginBottom: spacing.lg, marginHorizontal: spacing.xs },
-  progressHitArea: { height: 28, justifyContent: 'center' },
-  progressTrack: { height: 2, backgroundColor: colors.surface2 },
-  progressFill: { height: 2, backgroundColor: colors.primary },
-  progressDot: {
-    position: 'absolute',
-    width: 12, height: 12, borderRadius: 6,
-    backgroundColor: colors.primary,
-    top: 8,
-  },
+  progressHitArea: { height: 44, justifyContent: 'center' },
   timestamps: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
   time: { fontFamily: fonts.mono, fontSize: 11, color: colors.inkMute },
   controls: {
@@ -161,5 +173,10 @@ const s = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 8,
   },
 })

@@ -10,6 +10,9 @@ import { TrackRow } from '../../components/TrackRow'
 import { MiniPlayer } from '../../components/MiniPlayer'
 import { AddToPlaylistModal } from '../../components/AddToPlaylistModal'
 import { Icon } from '../../components/Icon'
+import { PulseBorder } from '../../components/PulseBorder'
+import { GridBackground } from '../../components/GridBackground'
+import { RecBadge } from '../../components/RecBadge'
 import { usePlayer } from '../../lib/player'
 import { colors, fonts, spacing } from '../../lib/theme'
 
@@ -28,18 +31,21 @@ function albumToQueue(album: Album): PlayerTrack[] {
 type HeroProps = { album: Album; queue: PlayerTrack[]; uri: string | null }
 
 function AlbumHero({ album, queue, uri }: HeroProps) {
-  const { play, shuffle, toggleShuffle } = usePlayer()
+  const { play, shuffle, toggleShuffle, track, isPlaying } = usePlayer()
   const allArtists = [album.artist, ...album.additionalArtists.map((e) => e.artist)]
   const artistLine = allArtists.map((a) => a.name).join(' & ')
+  const isThisAlbumPlaying = track?.album.id === album.id && isPlaying
 
   return (
     <View style={s.hero}>
       <View style={s.coverWrap}>
-        {uri ? (
-          <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={uri} />
-        ) : (
-          <View style={[StyleSheet.absoluteFill, s.nocover]} />
-        )}
+        <PulseBorder size={COVER_SIZE} active={isThisAlbumPlaying} haloPadding={16} borderWidth={2}>
+          {uri ? (
+            <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={uri} />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, s.nocover]} />
+          )}
+        </PulseBorder>
       </View>
       <Text style={s.albumTitle}>{album.title}</Text>
       <Text style={s.artistName}>{artistLine}</Text>
@@ -81,6 +87,8 @@ export default function AlbumScreen() {
 
   return (
     <SafeAreaView style={s.container} edges={['top', 'bottom']}>
+      <GridBackground />
+      <RecBadge />
       {loading ? (
         <ActivityIndicator color={colors.primary} style={s.loader} />
       ) : (
@@ -117,10 +125,6 @@ const s = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   coverWrap: {
-    width: COVER_SIZE,
-    height: COVER_SIZE,
-    backgroundColor: colors.surface2,
-    overflow: 'hidden',
     alignSelf: 'center',
     marginVertical: spacing.md,
   },

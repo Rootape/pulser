@@ -6,6 +6,9 @@ import { api } from '../../lib/api'
 import type { ArtistDetail } from '../../lib/api'
 import { AlbumCard } from '../../components/AlbumCard'
 import { MiniPlayer } from '../../components/MiniPlayer'
+import { GridBackground } from '../../components/GridBackground'
+import { RecBadge } from '../../components/RecBadge'
+import { usePlayer } from '../../lib/player'
 import { colors, fonts, spacing } from '../../lib/theme'
 
 const CARD_WIDTH = (Dimensions.get('window').width - spacing.md * 2 - spacing.md) / 2
@@ -15,6 +18,7 @@ export default function ArtistScreen() {
   const [artist, setArtist] = useState<ArtistDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { track } = usePlayer()
 
   useEffect(() => {
     if (!id) return
@@ -26,6 +30,8 @@ export default function ArtistScreen() {
 
   return (
     <SafeAreaView style={s.container} edges={['top', 'bottom']}>
+      <GridBackground />
+      <RecBadge />
       <View style={s.header}>
         <Text style={s.name} numberOfLines={1}>{artist?.name ?? '...'}</Text>
       </View>
@@ -45,6 +51,7 @@ export default function ArtistScreen() {
               coverUrl={item.coverUrl}
               onPress={() => router.push(`/album/${item.id}`)}
               width={CARD_WIDTH}
+              active={track?.album.id === item.id}
             />
           )}
         />

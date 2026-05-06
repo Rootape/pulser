@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { api } from '../../lib/api'
 import type { Playlist } from '../../lib/api'
+import { RecBadge } from '../../components/RecBadge'
 import { colors, fonts, spacing } from '../../lib/theme'
 
 export default function PlaylistsScreen() {
@@ -42,6 +43,7 @@ export default function PlaylistsScreen() {
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
+      <RecBadge />
       <View style={s.header}>
         <Text style={s.heading}>
           listas<Text style={s.dot}>.</Text>

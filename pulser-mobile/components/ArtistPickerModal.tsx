@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Animated, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { api } from '../lib/api'
 import type { Artist } from '../lib/api'
 import { colors, fonts, spacing } from '../lib/theme'
+import { GridBackground } from './GridBackground'
 
 type Props = {
   visible: boolean
@@ -15,21 +16,26 @@ export function ArtistPickerModal({ visible, excludeIds = [], onPick, onClose }:
   const [artists, setArtists] = useState<Artist[]>([])
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
+  const ty = useRef(new Animated.Value(400)).current
 
   useEffect(() => {
     if (!visible) return
     setLoading(true)
     api.artists().then(setArtists).catch(console.error).finally(() => setLoading(false))
-  }, [visible])
+    ty.setValue(400)
+    Animated.spring(ty, { toValue: 0, useNativeDriver: true, tension: 80, friction: 10 }).start()
+  }, [visible, ty])
 
   const filtered = artists
     .filter((a) => !excludeIds.includes(a.id))
     .filter((a) => a.name.toLowerCase().includes(query.toLowerCase()))
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={s.backdrop} onPress={onClose} />
-      <View style={s.sheet}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={s.backdrop} onPress={onClose}>
+        <GridBackground />
+      </Pressable>
+      <Animated.View style={[s.sheet, { transform: [{ translateY: ty }] }]}>
         <View style={s.handle} />
         <Text style={s.heading}>escolher artista</Text>
         <TextInput
@@ -55,7 +61,7 @@ export function ArtistPickerModal({ visible, excludeIds = [], onPick, onClose }:
             ItemSeparatorComponent={() => <View style={s.sep} />}
           />
         )}
-      </View>
+      </Animated.View>
     </Modal>
   )
 }

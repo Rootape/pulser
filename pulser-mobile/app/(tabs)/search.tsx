@@ -5,6 +5,7 @@ import { api } from '../../lib/api'
 import type { SearchTrack } from '../../lib/api'
 import { TrackRow } from '../../components/TrackRow'
 import { AddToPlaylistModal } from '../../components/AddToPlaylistModal'
+import { RecBadge } from '../../components/RecBadge'
 import { colors, fonts, spacing } from '../../lib/theme'
 import type { PlayerTrack } from '../../lib/player'
 
@@ -37,6 +38,7 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
+      <RecBadge />
       <View style={s.inputWrap}>
         <TextInput
           style={s.input}

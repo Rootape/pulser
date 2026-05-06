@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Animated, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
 import { api } from '../lib/api'
 import type { Playlist } from '../lib/api'
 import { colors, fonts, spacing } from '../lib/theme'
+import { GridBackground } from './GridBackground'
 
 type Props = {
   trackId: string | null
@@ -12,12 +13,15 @@ type Props = {
 export function AddToPlaylistModal({ trackId, onClose }: Props) {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [loading, setLoading] = useState(false)
+  const ty = useRef(new Animated.Value(400)).current
 
   useEffect(() => {
     if (!trackId) return
     setLoading(true)
     api.playlists().then(setPlaylists).catch(console.error).finally(() => setLoading(false))
-  }, [trackId])
+    ty.setValue(400)
+    Animated.spring(ty, { toValue: 0, useNativeDriver: true, tension: 80, friction: 10 }).start()
+  }, [trackId, ty])
 
   async function add(playlistId: string) {
     if (!trackId) return
@@ -26,9 +30,11 @@ export function AddToPlaylistModal({ trackId, onClose }: Props) {
   }
 
   return (
-    <Modal visible={!!trackId} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={s.backdrop} onPress={onClose} />
-      <View style={s.sheet}>
+    <Modal visible={!!trackId} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={s.backdrop} onPress={onClose}>
+        <GridBackground />
+      </Pressable>
+      <Animated.View style={[s.sheet, { transform: [{ translateY: ty }] }]}>
         <View style={s.handle} />
         <Text style={s.heading}>adicionar à lista</Text>
         {loading ? (
@@ -47,7 +53,7 @@ export function AddToPlaylistModal({ trackId, onClose }: Props) {
             ItemSeparatorComponent={() => <View style={s.sep} />}
           />
         )}
-      </View>
+      </Animated.View>
     </Modal>
   )
 }
