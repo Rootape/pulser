@@ -45,11 +45,7 @@ export function MiniPlayer() {
 }
 
 const s = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.hairline,
-  },
+  container: { backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.hairline },
   progressTrack: { height: 2, backgroundColor: colors.surface2 },
   progressFill: { height: 2, backgroundColor: colors.primary },
   inner: {

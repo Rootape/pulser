@@ -7,6 +7,7 @@ export type PlayerTrack = {
   id: string
   title: string
   duration: number | null
+  featArtists?: string
   album: {
     id: string
     title: string

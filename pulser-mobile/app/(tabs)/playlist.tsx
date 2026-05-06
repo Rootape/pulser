@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Alert, ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { api } from '../../lib/api'
 import type { Playlist } from '../../lib/api'
@@ -8,6 +9,7 @@ import { colors, fonts, spacing } from '../../lib/theme'
 export default function PlaylistsScreen() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   const load = useCallback(() => {
     api.playlists()
@@ -23,6 +25,19 @@ export default function PlaylistsScreen() {
       if (!name?.trim()) return
       api.createPlaylist(name.trim()).then(load).catch(console.error)
     })
+  }
+
+  function deletePlaylist(item: Playlist) {
+    Alert.alert('Excluir', `Excluir "${item.name}"?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () => {
+          api.deletePlaylist(item.id).then(load).catch(console.error)
+        },
+      },
+    ])
   }
 
   return (
@@ -44,12 +59,17 @@ export default function PlaylistsScreen() {
           renderItem={({ item }) => (
             <Pressable
               style={s.row}
-              onPress={() => Alert.alert(item.name, 'Detalhes em breve.')}
+              onPress={() => router.push(`/playlist/${item.id}`)}
+              onLongPress={() => deletePlaylist(item)}
+              delayLongPress={500}
             >
-              <Text style={s.name}>{item.name}</Text>
-              <Text style={s.meta}>
-                {new Date(item.createdAt).toLocaleDateString('pt-BR')}
-              </Text>
+              <View style={s.rowMeta}>
+                <Text style={s.name}>{item.name}</Text>
+                <Text style={s.meta}>
+                  {new Date(item.createdAt).toLocaleDateString('pt-BR')}
+                </Text>
+              </View>
+              <Text style={s.arrow}>›</Text>
             </Pressable>
           )}
           ItemSeparatorComponent={() => <View style={s.sep} />}
@@ -75,9 +95,16 @@ const s = StyleSheet.create({
   dot: { color: colors.primary },
   loader: { flex: 1 },
   list: { paddingVertical: spacing.sm },
-  row: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, gap: spacing.xs },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  rowMeta: { flex: 1, gap: spacing.xs },
   name: { fontFamily: fonts.groteskSemi, fontSize: 16, color: colors.ink },
   meta: { fontFamily: fonts.mono, fontSize: 11, color: colors.inkMute },
+  arrow: { fontFamily: fonts.grotesk, fontSize: 18, color: colors.inkMute },
   sep: { height: 1, backgroundColor: colors.hairline },
   newBtn: {
     borderWidth: 1,

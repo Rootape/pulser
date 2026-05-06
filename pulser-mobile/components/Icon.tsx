@@ -12,6 +12,7 @@ const MAP: Record<string, FeatherName> = {
   'skip-back': 'skip-back',
   'skip-forward': 'skip-forward',
   shuffle: 'shuffle',
+  settings: 'settings',
 }
 
 interface Props { name: string; size?: number; color?: string }

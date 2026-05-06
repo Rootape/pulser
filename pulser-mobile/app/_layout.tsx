@@ -8,7 +8,6 @@ import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { PlayerProvider } from '../lib/player'
-import { PlayerSheet } from '../components/PlayerSheet'
 import { colors } from '../lib/theme'
 
 export default function RootLayout() {
@@ -26,8 +25,11 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="album/[id]" />
+        <Stack.Screen name="artist/[id]" />
+        <Stack.Screen name="playlist/[id]" />
+        <Stack.Screen name="player" options={{ presentation: 'fullScreenModal' }} />
       </Stack>
-      <PlayerSheet />
     </PlayerProvider>
   )
 }

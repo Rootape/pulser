@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Dimensions, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { api } from '../../lib/api'
@@ -62,9 +62,7 @@ const s = StyleSheet.create({
     paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.hairline,
-    gap: spacing.sm,
   },
-  back: { fontFamily: fonts.mono, fontSize: 12, color: colors.primary, letterSpacing: 1 },
   name: { fontFamily: fonts.grotesk, fontSize: 28, letterSpacing: -1, color: colors.ink },
   loader: { flex: 1 },
   grid: { padding: spacing.md, gap: spacing.md },

@@ -8,14 +8,24 @@ type Props = {
   index: number
   queue: PlayerTrack[]
   showNumber?: boolean
+  onLongPress?: () => void
 }
 
-export function TrackRow({ track, index, queue, showNumber = true }: Props) {
+export function TrackRow({ track, index, queue, showNumber = true, onLongPress }: Props) {
   const { play, track: current, isPlaying } = usePlayer()
   const isActive = current?.id === track.id
 
+  const artistLine = track.featArtists
+    ? `${track.album.artist.name} feat. ${track.featArtists}`
+    : track.album.artist.name
+
   return (
-    <Pressable style={[s.row, isActive && s.rowActive]} onPress={() => play(queue, index)}>
+    <Pressable
+      style={[s.row, isActive && s.rowActive]}
+      onPress={() => play(queue, index)}
+      onLongPress={onLongPress}
+      delayLongPress={400}
+    >
       {showNumber && (
         <Text style={[s.num, isActive && s.numActive]}>
           {isActive && isPlaying ? '▶' : String(index + 1)}
@@ -25,9 +35,7 @@ export function TrackRow({ track, index, queue, showNumber = true }: Props) {
         <Text style={[s.title, isActive && s.titleActive]} numberOfLines={1}>
           {track.title}
         </Text>
-        <Text style={s.artist} numberOfLines={1}>
-          {track.album.artist.name}
-        </Text>
+        <Text style={s.artist} numberOfLines={1}>{artistLine}</Text>
       </View>
       <Text style={s.dur}>{formatDuration(track.duration)}</Text>
     </Pressable>

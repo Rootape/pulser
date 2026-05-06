@@ -4,17 +4,25 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { api } from '../../lib/api'
 import type { SearchTrack } from '../../lib/api'
 import { TrackRow } from '../../components/TrackRow'
+import { AddToPlaylistModal } from '../../components/AddToPlaylistModal'
 import { colors, fonts, spacing } from '../../lib/theme'
 import type { PlayerTrack } from '../../lib/player'
 
 function toPlayerTrack(t: SearchTrack): PlayerTrack {
-  return { id: t.id, title: t.title, duration: t.duration, album: t.album }
+  return {
+    id: t.id,
+    title: t.title,
+    duration: t.duration,
+    featArtists: t.featArtists.length > 0 ? t.featArtists.map((e) => e.artist.name).join(', ') : undefined,
+    album: t.album,
+  }
 }
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchTrack[]>([])
   const [loading, setLoading] = useState(false)
+  const [addTrackId, setAddTrackId] = useState<string | null>(null)
 
   const search = useCallback((q: string) => {
     if (q.trim().length < 2) { setResults([]); return }
@@ -47,10 +55,17 @@ export default function SearchScreen() {
           data={results}
           keyExtractor={(t) => t.id}
           renderItem={({ item, index }) => (
-            <TrackRow track={toPlayerTrack(item)} index={index} queue={queue} />
+            <TrackRow
+              track={toPlayerTrack(item)}
+              index={index}
+              queue={queue}
+              showNumber={false}
+              onLongPress={() => setAddTrackId(item.id)}
+            />
           )}
         />
       )}
+      <AddToPlaylistModal trackId={addTrackId} onClose={() => setAddTrackId(null)} />
     </SafeAreaView>
   )
 }

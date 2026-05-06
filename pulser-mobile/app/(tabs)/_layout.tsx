@@ -1,10 +1,24 @@
 import { Tabs } from 'expo-router'
+import { BottomTabBar } from '@react-navigation/bottom-tabs'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import { View } from 'react-native'
 import { colors, fonts } from '../../lib/theme'
+import { MiniPlayer } from '../../components/MiniPlayer'
 import { Icon } from '../../components/Icon'
+
+function TabBar(props: BottomTabBarProps) {
+  return (
+    <View>
+      <MiniPlayer />
+      <BottomTabBar {...props} />
+    </View>
+  )
+}
 
 export default function TabsLayout() {
   return (
     <Tabs
+      tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.hairline },
@@ -34,9 +48,13 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Icon name="list" size={size} color={color} />,
         }}
       />
-      {/* Screens nested in tabs group — tab bar stays visible */}
-      <Tabs.Screen name="artist/[id]" options={{ href: null }} />
-      <Tabs.Screen name="album/[id]" options={{ href: null }} />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'ADMIN',
+          tabBarIcon: ({ color, size }) => <Icon name="settings" size={size} color={color} />,
+        }}
+      />
     </Tabs>
   )
 }
